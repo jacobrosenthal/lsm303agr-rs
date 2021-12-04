@@ -97,6 +97,9 @@ pub trait ReadData: private::Sealed {
         register: u8,
     ) -> Result<(u16, u16, u16), Self::Error>;
 
+    /// Read n u8 raw accelerometer registers
+    fn read_n(&mut self, register: u8, data: &mut [u8]) -> Result<(), Self::Error>;
+
     /// Read 3 u16 magnetometer registers
     fn read_mag_3_double_registers(&mut self, register: u8)
         -> Result<(u16, u16, u16), Self::Error>;
@@ -125,6 +128,10 @@ where
         register: u8,
     ) -> Result<(u16, u16, u16), Self::Error> {
         self.read_3_double_registers(ACCEL_ADDR, register)
+    }
+
+    fn read_n(&mut self, register: u8, data: &mut [u8]) -> Result<(), Self::Error> {
+        self.read_batch(ACCEL_ADDR, register, data)
     }
 
     fn read_mag_3_double_registers(
@@ -170,6 +177,17 @@ where
             u16::from(data[2]) | (u16::from(data[3]) << 8),
             u16::from(data[4]) | (u16::from(data[5]) << 8),
         ))
+    }
+
+    fn read_batch(
+        &mut self,
+        address: u8,
+        register: u8,
+        data: &mut [u8],
+    ) -> Result<(), Error<E, ()>> {
+        self.i2c
+            .write_read(address, &[register | 0x80], data)
+            .map_err(Error::Comm)
     }
 }
 
@@ -221,6 +239,10 @@ where
         self.cs_mag.set_high().map_err(Error::Pin)?;
         result
     }
+
+    fn read_n(&mut self, _register: u8, _data: &mut [u8]) -> Result<(), Self::Error> {
+        todo!()
+    }
 }
 
 impl<SPI, CSXL, CSMAG, CommE, PinE> SpiInterface<SPI, CSXL, CSMAG>
@@ -260,5 +282,14 @@ where
             u16::from(value[3]) | (u16::from(value[4]) << 8),
             u16::from(value[5]) | (u16::from(value[6]) << 8),
         ))
+    }
+
+    fn read_batch(
+        &mut self,
+        address: u8,
+        register: u8,
+        data: &mut [u8],
+    ) -> Result<(u16, u16, u16), Error<CommE, PinE>> {
+        todo!()
     }
 }

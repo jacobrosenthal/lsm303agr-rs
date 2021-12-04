@@ -143,3 +143,74 @@ pub struct TemperatureStatus {
     /// New data ready
     pub new_data: bool,
 }
+
+/// Fifo status
+pub struct FifoStatus {
+    /// Fifo content exceeds watermark level
+    pub watermark: bool,
+    /// Fifo buffer is full. This means that the FIFO buffer contains 32 unread
+    /// samples. At the following ODR a new sample set replaces the oldest Fifo
+    /// value. The overrun flag is set to 0 when the first sample set has been
+    /// read.
+    pub overrun: bool,
+    /// All Fifo samples have been read and Fifo is empty
+    pub empty: bool,
+    /// The current number of unread samples stored in the Fifo buffer. When
+    /// Fifo is enabled, this value increases at ODR frequency until the buffer
+    /// is full, whereas, it decreases every time one sample set is retrieved
+    /// from Fifo.
+    pub fss_unread: u8,
+}
+
+/// Interrupt Selection
+pub enum IntNumber {
+    /// Int1 pin
+    Int1,
+    /// Int2 pin
+    Int2,
+}
+
+/// Fifo Mode
+pub enum FifoMode {
+    /// Fifo is not operational and for this reason it remains empty. Default
+    Bypass,
+    /// he buffer continues filling data from the X, Y and Z accelerometer
+    /// channels until it is full (a set of 32 samples stored). When the FIFO is
+    /// full, it stops collecting data from the input channels and the FIFO
+    /// content remains unchanged. After the last read it is necessary to exit
+    /// to bypass an reenable Fifo mode.
+    Fifo,
+    /// In Stream mode the FIFO continues filling data from the X, Y, and Z
+    /// accelerometer channels until the buffer is full (a set of 32 samples
+    /// stored) at which point the FIFO buffer index restarts from the beginning
+    /// and older data is replaced by the current data. The oldest values
+    /// continue to be overwritten until a read operation frees the FIFO slots.
+    Stream,
+    /// In Stream-to-FIFO mode, data from the X, Y and Z accelerometer channels
+    /// are collected in a combination of Stream mode and FIFO mode. The FIFO
+    /// buffer starts operating in Stream mode and switches to FIFO mode when
+    /// the selected interrupt occurs. When an interrupt event is configured on
+    /// the INT_1_XL pin, the FIFO operates in Stream mode if the INT_1_XL pin
+    /// value is equal to ‘0’ and it operates in FIFO mode if the INT_1_XL pin
+    /// value is equal to ‘1’. Switching modes is dynamically performed
+    /// according to the INT_1_XL pin value
+    StreamToFifo,
+}
+
+/// Interrupt status
+pub struct InterruptStatus {
+    /// Interrupt is active
+    pub active: bool,
+    /// Z High is active
+    pub z_high: bool,
+    /// Z Low is active
+    pub z_low: bool,
+    /// Y Low is active
+    pub y_high: bool,
+    /// Y Low is active
+    pub y_low: bool,
+    /// X Low is active
+    pub x_high: bool,
+    /// X Low is active
+    pub x_low: bool,
+}

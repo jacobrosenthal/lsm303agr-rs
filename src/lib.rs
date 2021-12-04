@@ -117,8 +117,9 @@ mod mag_mode_change;
 mod magnetometer;
 mod types;
 pub use crate::types::{
-    mode, AccelMode, AccelOutputDataRate, AccelScale, Error, MagOutputDataRate, Measurement,
-    ModeChangeError, Status, TemperatureStatus, UnscaledMeasurement,
+    mode, AccelMode, AccelOutputDataRate, AccelScale, Error, FifoMode, FifoStatus, IntNumber,
+    InterruptStatus, MagOutputDataRate, Measurement, ModeChangeError, Status, TemperatureStatus,
+    UnscaledMeasurement,
 };
 mod register_address;
 use crate::register_address::{BitFlags, Register};
@@ -129,10 +130,15 @@ pub struct Lsm303agr<DI, MODE> {
     /// Digital interface: I2C or SPI
     iface: DI,
     ctrl_reg1_a: Config,
+    ctrl_reg3_a: Config,
     ctrl_reg4_a: Config,
+    ctrl_reg5_a: Config,
+    ctrl_reg6_a: Config,
     cfg_reg_a_m: Config,
     cfg_reg_c_m: Config,
     temp_cfg_reg_a: Config,
+    fifo_ctrl_reg_a: Config,
+    int_ctrl_reg_m: Config,
     accel_odr: Option<AccelOutputDataRate>,
     _mag_mode: PhantomData<MODE>,
 }
